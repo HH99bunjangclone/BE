@@ -8,9 +8,9 @@ public enum ErrorCode {
     NOT_FOUND_EMAIL("존재하지 않는 이메일 입니다."),
     ;
 
-    private final String message;
+    private final String msg;
 
-    ErrorCode(String message) {
-        this.message = message;
+    ErrorCode(String msg) {
+        this.msg = msg;
     }
 }

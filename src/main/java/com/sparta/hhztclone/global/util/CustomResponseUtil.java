@@ -23,10 +23,10 @@ public class CustomResponseUtil {
         }
     }
 
-    public static void fail(HttpServletResponse response, String message, HttpStatus httpStatus) {
+    public static void fail(HttpServletResponse response, String msg, HttpStatus httpStatus) {
         try {
             ObjectMapper om = new ObjectMapper();
-            ResponseDto<Object> responseDto = ResponseDto.fail(message);
+            ResponseDto<Object> responseDto = ResponseDto.fail(msg);
             String responseBody = om.writeValueAsString(responseDto);
 
             response.setContentType("application/json; charset=utf-8");
