@@ -13,21 +13,25 @@ public class MemberRequestDto {
             String email,
 
             @NotBlank(message = "비밀번호를 입력해주세요.")
-            String password
+            String password,
+
+            @NotBlank(message = "닉네임을 입력해주세요.")
+            String nickname
     ) {
         public Member toEntity(String encodedPassword) {
             return Member.builder()
                     .email(email)
                     .password(encodedPassword)
+                    .nickname(nickname)
                     .authority(AuthorityType.USER)
                     .build();
         }
     }
 
-    public record SigninMemberRequestDto(
+    public record LoginRequestDto(
             @NotBlank(message = "이메일을 입력해주세요.")
             @Email(message = "이메일 형식이 아닙니다.")
-            String username,
+            String email,
 
             @NotBlank(message = "비밀번호를 입력해주세요.")
             String password

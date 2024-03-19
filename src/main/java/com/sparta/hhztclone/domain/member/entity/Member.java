@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
-@Table(name = "member_tbl")
 public class Member {
 
     @Id
@@ -23,14 +22,18 @@ public class Member {
     @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false)
+    private String nickname;
+
     @Column(name = "authority", nullable = false)
     @Enumerated(EnumType.STRING)
     private AuthorityType authority;
 
     @Builder
-    public Member(String email, String password, AuthorityType authority) {
+    public Member(String email, String password, String nickname, AuthorityType authority) {
         this.email = email;
         this.password = password;
+        this.nickname = nickname;
         this.authority = authority;
     }
 

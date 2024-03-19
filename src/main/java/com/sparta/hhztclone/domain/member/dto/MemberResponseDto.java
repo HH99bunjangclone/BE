@@ -1,9 +1,6 @@
 package com.sparta.hhztclone.domain.member.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sparta.hhztclone.domain.member.entity.Member;
-
-import java.time.LocalDateTime;
 
 public class MemberResponseDto {
 
@@ -17,10 +14,10 @@ public class MemberResponseDto {
         }
     }
 
-    public record SigninMemberResponseDto(
+    public record LoginResponseDto(
             Long id
     ) {
-        public SigninMemberResponseDto(Member member) {
+        public LoginResponseDto(Member member) {
             this(
                     member.getId()
             );
@@ -55,4 +52,8 @@ public class MemberResponseDto {
             );
         }
     }
+
+    public record EmailSendResponseDto(String emailCode){}
+
+    public record EmailAuthResponseDto(Boolean success){}
 }

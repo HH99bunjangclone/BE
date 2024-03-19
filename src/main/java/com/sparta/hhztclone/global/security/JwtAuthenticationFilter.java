@@ -2,7 +2,7 @@ package com.sparta.hhztclone.global.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.hhztclone.domain.member.dto.MemberRequestDto;
-import com.sparta.hhztclone.domain.member.dto.MemberRequestDto.SigninMemberRequestDto;
+import com.sparta.hhztclone.domain.member.dto.MemberRequestDto.LoginRequestDto;
 import com.sparta.hhztclone.domain.member.dto.MemberResponseDto;
 import com.sparta.hhztclone.domain.member.entity.type.AuthorityType;
 import com.sparta.hhztclone.global.jwt.JwtUtil;
@@ -32,11 +32,11 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         try {
-            SigninMemberRequestDto requestDto = new ObjectMapper().readValue(request.getInputStream(), SigninMemberRequestDto.class);
+            MemberRequestDto.LoginRequestDto requestDto = new ObjectMapper().readValue(request.getInputStream(), LoginRequestDto.class);
 
             return getAuthenticationManager().authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            requestDto.username(),
+                            requestDto.email(),
                             requestDto.password(),
                             null
                     )
@@ -56,7 +56,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authResult.getPrincipal();
-        MemberResponseDto.SigninMemberResponseDto responseDto = new MemberResponseDto.SigninMemberResponseDto(userDetails.getMember());
+        MemberResponseDto.LoginResponseDto responseDto = new MemberResponseDto.LoginResponseDto(userDetails.getMember());
         CustomResponseUtil.success(response, responseDto);
     }
 
