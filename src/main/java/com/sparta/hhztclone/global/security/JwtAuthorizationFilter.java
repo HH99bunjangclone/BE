@@ -1,7 +1,7 @@
 package com.sparta.hhztclone.global.security;
 
-import com.hanghae.study.global.jwt.JwtUtil;
-import com.hanghae.study.global.util.CustomResponseUtil;
+import com.sparta.hhztclone.global.jwt.JwtUtil;
+import com.sparta.hhztclone.global.util.CustomResponseUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

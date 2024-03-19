@@ -1,8 +1,8 @@
 package com.sparta.hhztclone.global.security;
 
-import com.hanghae.study.domain.member.entity.Member;
-import com.hanghae.study.domain.member.repository.MemberRepository;
-import com.hanghae.study.global.exception.ErrorCode;
+import com.sparta.hhztclone.domain.member.entity.Member;
+import com.sparta.hhztclone.domain.member.repository.MemberRepository;
+import com.sparta.hhztclone.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
