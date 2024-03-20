@@ -25,6 +25,7 @@ public interface MemberControllerDocs {
     ResponseDto<EmailSendResponseDto> emailSend(@RequestParam String email);
 
     @Operation(summary = "이메일 인증 체크", description = "이메일 인증 체크 요청 API")
-    ResponseDto<EmailAuthResponseDto> emailAuthCheck(@RequestParam String emailCode);
+    ResponseDto<EmailAuthResponseDto> emailAuthCheck(@RequestParam String email,
+                                                     @RequestParam String emailCode);
 
 }
