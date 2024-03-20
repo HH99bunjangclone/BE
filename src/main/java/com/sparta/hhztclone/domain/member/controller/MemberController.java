@@ -6,20 +6,26 @@ import com.sparta.hhztclone.domain.member.dto.MemberResponseDto.CheckMemberEmail
 import com.sparta.hhztclone.domain.member.dto.MemberResponseDto.EmailAuthResponseDto;
 import com.sparta.hhztclone.domain.member.dto.MemberResponseDto.EmailSendResponseDto;
 import com.sparta.hhztclone.domain.member.dto.MemberResponseDto.SignupMemberResponseDto;
+import com.sparta.hhztclone.domain.member.service.MemberService;
 import com.sparta.hhztclone.global.dto.ResponseDto;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import static com.sparta.hhztclone.domain.member.dto.MemberRequestDto.SignupMemberRequestDto;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/v1/user")
 public class MemberController implements MemberControllerDocs {
+
+    private final MemberService memberService;
 
     // 회원가입
     @PostMapping("/signup")
     public ResponseDto<SignupMemberResponseDto> signup(@RequestBody @Valid SignupMemberRequestDto requestDto) {
-        return ResponseDto.success("회원가입 성공", new MemberResponseDto.SignupMemberResponseDto("email"));
+        SignupMemberResponseDto responseDto = memberService.signup(requestDto);
+        return ResponseDto.success("회원가입 성공", responseDto);
     }
     
     // 이메일 중복 체크 요청
