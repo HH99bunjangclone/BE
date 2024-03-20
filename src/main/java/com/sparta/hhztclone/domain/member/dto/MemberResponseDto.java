@@ -1,6 +1,9 @@
 package com.sparta.hhztclone.domain.member.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sparta.hhztclone.domain.member.entity.Member;
+
+import java.time.LocalDateTime;
 
 public class MemberResponseDto {
 
@@ -42,13 +45,17 @@ public class MemberResponseDto {
 
     public record GetMemberResponseDto(
             Long id,
-            String email
-
+            String email,
+            String nickname,
+            @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+            LocalDateTime createdAt
     ) {
         public GetMemberResponseDto(Member member) {
             this(
                     member.getId(),
-                    member.getEmail()
+                    member.getEmail(),
+                    member.getNickname(),
+                    member.getCreatedAt()
             );
         }
     }

@@ -1,15 +1,13 @@
 package com.sparta.hhztclone.domain.member.controller;
 
 import com.sparta.hhztclone.domain.member.controller.docs.MemberControllerDocs;
-import com.sparta.hhztclone.domain.member.dto.MemberResponseDto;
-import com.sparta.hhztclone.domain.member.dto.MemberResponseDto.CheckMemberEmailResponseDto;
-import com.sparta.hhztclone.domain.member.dto.MemberResponseDto.EmailAuthResponseDto;
-import com.sparta.hhztclone.domain.member.dto.MemberResponseDto.EmailSendResponseDto;
-import com.sparta.hhztclone.domain.member.dto.MemberResponseDto.SignupMemberResponseDto;
+import com.sparta.hhztclone.domain.member.dto.MemberResponseDto.*;
 import com.sparta.hhztclone.domain.member.service.MemberService;
 import com.sparta.hhztclone.global.dto.ResponseDto;
+import com.sparta.hhztclone.global.security.UserDetailsImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import static com.sparta.hhztclone.domain.member.dto.MemberRequestDto.SignupMemberRequestDto;
@@ -45,5 +43,12 @@ public class MemberController implements MemberControllerDocs {
     @GetMapping("/email-auth")
     public ResponseDto<EmailAuthResponseDto> emailAuthCheck(@RequestParam String emailCode) {
         return ResponseDto.success("이메일 인증 성공", new EmailAuthResponseDto(true));
+    }
+
+    // 회원 정보 조회
+    @GetMapping("/{userId}")
+    public ResponseDto<GetMemberResponseDto> getUser(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        GetMemberResponseDto responseDto = memberService.getMember(userDetails.getUsername());
+        return ResponseDto.success("회원 정보 조회 성공", responseDto);
     }
 }
