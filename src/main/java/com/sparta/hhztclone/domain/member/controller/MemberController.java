@@ -7,24 +7,30 @@ import com.sparta.hhztclone.domain.member.dto.MemberResponseDto.EmailAuthRespons
 import com.sparta.hhztclone.domain.member.dto.MemberResponseDto.EmailSendResponseDto;
 import com.sparta.hhztclone.domain.member.dto.MemberResponseDto.SignupMemberResponseDto;
 import com.sparta.hhztclone.domain.member.service.EmailService;
+import com.sparta.hhztclone.domain.member.service.MemberService;
 import com.sparta.hhztclone.global.dto.ResponseDto;
+import com.sparta.hhztclone.global.security.UserDetailsImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import static com.sparta.hhztclone.domain.member.dto.MemberRequestDto.SignupMemberRequestDto;
 
 @RequiredArgsConstructor
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/v1/user")
 public class MemberController implements MemberControllerDocs {
 
     private final EmailService emailService;
+    private final MemberService memberService;
 
     // 회원가입
     @PostMapping("/signup")
     public ResponseDto<SignupMemberResponseDto> signup(@RequestBody @Valid SignupMemberRequestDto requestDto) {
-        return ResponseDto.success("회원가입 성공", new MemberResponseDto.SignupMemberResponseDto("email"));
+        SignupMemberResponseDto responseDto = memberService.signup(requestDto);
+        return ResponseDto.success("회원가입 성공", responseDto);
     }
     
     // 이메일 중복 체크 요청
@@ -47,5 +53,12 @@ public class MemberController implements MemberControllerDocs {
                                                             @RequestParam("emailCode") String emailCode) {
         boolean success = emailService.emailAuthCheck(email, emailCode);
         return ResponseDto.success("이메일 인증 성공", new EmailAuthResponseDto(success));
+    }
+
+    // 회원 정보 조회
+    @GetMapping("/{userId}")
+    public ResponseDto<GetMemberResponseDto> getUser(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        GetMemberResponseDto responseDto = memberService.getMember(userDetails.getUsername());
+        return ResponseDto.success("회원 정보 조회 성공", responseDto);
     }
 }
