@@ -1,28 +1,42 @@
 package com.sparta.hhztclone.domain.item.controller;
 
+import com.sparta.hhztclone.domain.image.dto.ImageSaveDto;
 import com.sparta.hhztclone.domain.item.controller.docs.ItemControllerDocs;
 import com.sparta.hhztclone.domain.item.dto.ItemRequestDto;
 import com.sparta.hhztclone.domain.item.dto.ItemResponseDto;
+import com.sparta.hhztclone.domain.item.service.ItemService;
 import com.sparta.hhztclone.global.dto.ResponseDto;
 import com.sparta.hhztclone.global.security.UserDetailsImpl;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.hibernate.annotations.DynamicUpdate;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("api/v1/item")
+@DynamicUpdate
+@Slf4j
 public class ItemController implements ItemControllerDocs {
+
+    private final ItemService itemService;
 
     @PostMapping
     public ResponseDto<ItemResponseDto.CreateItemResponseDto> createItem(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestBody @Valid ItemRequestDto.CreateItemRequestDto requestDto
+            @RequestPart @Valid ItemRequestDto.CreateItemRequestDto requestDto,
+            @ModelAttribute ImageSaveDto imageSaveDto
+
     ) {
-        return null;
+        ItemResponseDto.CreateItemResponseDto responseDto = itemService.createItem(userDetails.getUsername(), requestDto,imageSaveDto);
+        return ResponseDto.success("아이템 생성 기능", responseDto);
     }
 
     @GetMapping
@@ -34,16 +48,18 @@ public class ItemController implements ItemControllerDocs {
     public ResponseDto<ItemResponseDto.GetItemResponseDto> getItem(
             @PathVariable Long itemId
     ) {
-        return null;
+        ItemResponseDto.GetItemResponseDto responseDto = itemService.getItem(itemId);
+        return ResponseDto.success("아이템 조회 기능", responseDto);
     }
 
-    @PutMapping("/{itemId}")
+    @PutMapping("/{itemId}") //@PatchMapping
     public ResponseDto<ItemResponseDto.EditItemResponseDto> editItem(
             @PathVariable Long itemId,
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestBody @Valid ItemRequestDto.EditItemRequestDto requestDto
     ) {
-        return null;
+        ItemResponseDto.EditItemResponseDto responseDto = itemService.editItem(itemId, userDetails.getUsername(), requestDto);
+        return ResponseDto.success("아이템 수정 기능", responseDto);
     }
 
     @DeleteMapping("/{itemId}")
@@ -51,7 +67,8 @@ public class ItemController implements ItemControllerDocs {
             @PathVariable Long itemId,
             @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
-        return null;
+        itemService.deleteItem(itemId, userDetails.getUsername());
+        return ResponseDto.success("아이템 삭제 기능", null);
     }
 
     @GetMapping("/search")
@@ -60,5 +77,9 @@ public class ItemController implements ItemControllerDocs {
             @RequestParam String keyword
     ) {
         return null;
+    }
+
+    public List<String> saveImage(@ModelAttribute ImageSaveDto imageSaveDto) {
+        return itemService.saveImages(imageSaveDto);
     }
 }

@@ -16,10 +16,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import static com.sparta.hhztclone.domain.member.dto.MemberRequestDto.SignupMemberRequestDto;
+import static com.sparta.hhztclone.domain.member.dto.MemberResponseDto.*;
 
 @RequiredArgsConstructor
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api/v1/user")
 public class MemberController implements MemberControllerDocs {
 
