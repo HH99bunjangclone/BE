@@ -28,9 +28,9 @@ public class MemberController implements MemberControllerDocs {
 
     // 회원가입
     @PostMapping("/signup")
-    public ResponseDto<SignupMemberResponseDto> signup(@RequestBody @Valid SignupMemberRequestDto requestDto) {
-        SignupMemberResponseDto responseDto = memberService.signup(requestDto);
-        return ResponseDto.success("회원가입 성공", responseDto);
+    public ResponseDto signup(@RequestBody @Valid SignupMemberRequestDto requestDto) {
+        memberService.signup(requestDto);
+        return ResponseDto.success("회원가입 성공", null);
     }
     
     // 이메일 중복 체크 요청

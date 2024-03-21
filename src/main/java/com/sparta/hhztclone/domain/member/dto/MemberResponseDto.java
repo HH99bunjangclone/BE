@@ -18,13 +18,8 @@ public class MemberResponseDto {
     }
 
     public record LoginResponseDto(
-            Long id
+            String token
     ) {
-        public LoginResponseDto(Member member) {
-            this(
-                    member.getId()
-            );
-        }
     }
 
     public record EditMemberResponseDto(

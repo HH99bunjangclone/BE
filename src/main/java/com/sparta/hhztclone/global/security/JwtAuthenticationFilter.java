@@ -55,9 +55,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String token = jwtUtil.createToken(email, role);
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
 
-        UserDetailsImpl userDetails = (UserDetailsImpl) authResult.getPrincipal();
-        MemberResponseDto.LoginResponseDto responseDto = new MemberResponseDto.LoginResponseDto(userDetails.getMember());
-        CustomResponseUtil.success(response, responseDto);
+        CustomResponseUtil.success(response, null);
     }
 
     @Override
