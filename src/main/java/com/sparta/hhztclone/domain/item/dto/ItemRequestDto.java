@@ -7,7 +7,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Getter;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -57,13 +56,13 @@ public class ItemRequestDto {
         @PositiveOrZero(message = "가격을 입력해 주세요")
         private int price;
 
-        private List<String> files;
+        private List<String> imgList;
 
         public EditItemRequestDto(String title, String contents, Integer price, List<String> images) {
             this.title = title;
             this.contents = contents;
             this.price = price;
-            this.files = images;
+            this.imgList = images;
         }
     }
 

@@ -38,6 +38,7 @@ public class Item extends TimeStamped {
     @Enumerated(EnumType.STRING)
     private CategoryType category;
 
+    @Column(nullable = false)
     private List<String> imageUrl;
 
     @Builder
