@@ -38,6 +38,12 @@ public class MemberResponseDto {
 
     }
 
+    public record CheckMemberNicknameResponseDto(
+            Boolean isExist
+    ) {
+
+    }
+
     public record GetMemberResponseDto(
             Long id,
             String email,

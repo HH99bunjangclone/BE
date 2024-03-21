@@ -28,9 +28,10 @@ public class EmailRedisRepository {
         redisTemplate.delete(email);
     }
 
-    // 키(이메일) 일치여부 확인
+    // 키 존재 여부 확인
     public boolean hasKey(String email) {
         Boolean keyExists = redisTemplate.hasKey(email);
         return keyExists != null & keyExists;
     }
+
 }

@@ -10,8 +10,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
+import java.util.Random;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -22,29 +21,27 @@ public class EmailService {
     private final JavaMailSender javaMailSender;
     private final EmailRedisRepository emailRedisRepository;
 
-    // 이메일 중복 체크
-    public boolean emailCheck(String email) {
-        return memberRepository.existsByEmail(email);
-    }
-
     // 이메일 인증 코드 보내기
     public String emailSend(String email) {
-        String certificationNumber;
+        // 6자리 랜덤 숫자 생성
+        String certificationNumber = createCertificationNumber();
 
         try {
-            certificationNumber = createCertificationNumber();
-
-            // redis에 저장
+            // redis에 Key 존재 여부 확인 후 저장
             // email : certificationNumber
+            if (emailRedisRepository.hasKey(email)) {
+                emailRedisRepository.removeCertificationNumber(email);
+            }
             emailRedisRepository.saveCertificationNumber(email, certificationNumber);
-
+            
+            // 인증 코드 이메일 전송
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
             mimeMessageHelper.setTo(email); // 메일 수신자
             mimeMessageHelper.setSubject("항해마켓 회원가입 인증번호"); // 메일 제목
             mimeMessageHelper.setText(certificationNumber); // 메일 본문 내용, HTML 여부
             javaMailSender.send(mimeMessage);
-        } catch (MessagingException | NoSuchAlgorithmException e) {
+        } catch (MessagingException e) {
             log.info("fail");
             throw new RuntimeException(e);
         }
@@ -64,16 +61,11 @@ public class EmailService {
         return false;
     }
 
-    // 6자리 난수 만들기
-    private String createCertificationNumber() throws NoSuchAlgorithmException {
-        String result;
-
-        do {
-            int num = SecureRandom.getInstanceStrong().nextInt(999999);
-            result = String.valueOf(num);
-        } while (result.length() != 6);
-
-        return result;
+    // 6자리 랜덤 숫자 만들기
+    private String createCertificationNumber()  {
+        Random random = new Random();
+        int num = random.nextInt(888888) + 111111;
+        return String.valueOf(num);
     }
 
 }
