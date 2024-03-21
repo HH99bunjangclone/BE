@@ -2,7 +2,6 @@ package com.sparta.hhztclone.domain.member.service;
 
 import com.sparta.hhztclone.domain.member.dto.MemberRequestDto.SignupMemberRequestDto;
 import com.sparta.hhztclone.domain.member.dto.MemberResponseDto.GetMemberResponseDto;
-import com.sparta.hhztclone.domain.member.dto.MemberResponseDto.SignupMemberResponseDto;
 import com.sparta.hhztclone.domain.member.entity.Member;
 import com.sparta.hhztclone.domain.member.repository.MemberRepository;
 import com.sparta.hhztclone.global.dto.ResponseDto;
@@ -36,5 +35,15 @@ public class MemberService {
         Member member = memberRepository.findByEmail(email).orElseThrow(() ->
                 new RestApiException(ErrorCode.NOT_FOUND_MEMBER.getMsg()));
         return new GetMemberResponseDto(member);
+    }
+
+    // 이메일 중복 체크
+    public boolean emailCheck(String email) {
+        return memberRepository.existsByEmail(email);
+    }
+    
+    // 닉네임 중복체크
+    public boolean nicknameCheck(String nickname) {
+        return memberRepository.existsByNickname(nickname);
     }
 }
