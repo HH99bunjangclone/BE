@@ -1,5 +1,8 @@
 package com.sparta.hhztclone.global.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public record ResponseDto<T>(
         boolean status,
         String msg,
