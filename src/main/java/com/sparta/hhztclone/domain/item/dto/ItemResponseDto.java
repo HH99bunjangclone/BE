@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class ItemResponseDto {
 
@@ -18,7 +19,7 @@ public class ItemResponseDto {
         private String title;
         private String contents;
         private Integer price;
-        private String imageUrl;
+        private List<String> imageUrl;
         private LocalDateTime createdAt;
 
         public CreateItemResponseDto(Item item) {
@@ -39,7 +40,7 @@ public class ItemResponseDto {
         private String title;
         private String contents;
         private Integer price;
-        private String imageUrl;
+        private List<String> imageUrl;
         private LocalDateTime createdAt;
 
         public EditItemResponseDto(Item item) {
@@ -61,7 +62,7 @@ public class ItemResponseDto {
         private String title;
         private String contents;
         private Integer price;
-        private String imageUrl;
+        private List<String> imageUrl;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
 

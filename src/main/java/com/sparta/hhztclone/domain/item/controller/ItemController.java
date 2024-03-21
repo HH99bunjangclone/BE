@@ -7,17 +7,18 @@ import com.sparta.hhztclone.domain.item.dto.ItemResponseDto;
 import com.sparta.hhztclone.domain.item.service.ItemService;
 import com.sparta.hhztclone.global.dto.ResponseDto;
 import com.sparta.hhztclone.global.security.UserDetailsImpl;
-import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.DynamicUpdate;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @RestController
@@ -28,14 +29,14 @@ public class ItemController implements ItemControllerDocs {
 
     private final ItemService itemService;
 
-    @PostMapping
+    @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseDto<ItemResponseDto.CreateItemResponseDto> createItem(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestPart @Valid ItemRequestDto.CreateItemRequestDto requestDto,
-            @ModelAttribute ImageSaveDto imageSaveDto
+            @RequestPart(value = "files", required = false) MultipartFile[] multipartFilesList
 
     ) {
-        ItemResponseDto.CreateItemResponseDto responseDto = itemService.createItem(userDetails.getUsername(), requestDto,imageSaveDto);
+        ItemResponseDto.CreateItemResponseDto responseDto = itemService.createItem(userDetails.getUsername(), requestDto, multipartFilesList);
         return ResponseDto.success("아이템 생성 기능", responseDto);
     }
 
@@ -52,13 +53,14 @@ public class ItemController implements ItemControllerDocs {
         return ResponseDto.success("아이템 조회 기능", responseDto);
     }
 
-    @PutMapping("/{itemId}") //@PatchMapping
+    @PutMapping(value = "/{itemId}",consumes = {MediaType.APPLICATION_JSON_VALUE,MediaType.MULTIPART_FORM_DATA_VALUE}) //@PatchMapping
     public ResponseDto<ItemResponseDto.EditItemResponseDto> editItem(
             @PathVariable Long itemId,
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestBody @Valid ItemRequestDto.EditItemRequestDto requestDto
+            @RequestPart @Valid ItemRequestDto.EditItemRequestDto requestDto,
+            @RequestPart(value = "files", required = false) MultipartFile[] multipartFilesList
     ) {
-        ItemResponseDto.EditItemResponseDto responseDto = itemService.editItem(itemId, userDetails.getUsername(), requestDto);
+        ItemResponseDto.EditItemResponseDto responseDto = itemService.editItem(itemId, userDetails.getUsername(), requestDto, multipartFilesList);
         return ResponseDto.success("아이템 수정 기능", responseDto);
     }
 
@@ -79,7 +81,4 @@ public class ItemController implements ItemControllerDocs {
         return null;
     }
 
-    public List<String> saveImage(@ModelAttribute ImageSaveDto imageSaveDto) {
-        return itemService.saveImages(imageSaveDto);
-    }
 }
