@@ -1,42 +1,42 @@
 package com.sparta.hhztclone.domain.item.service;
 
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.DeleteObjectRequest;
-import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.sparta.hhztclone.domain.image.dto.ImageSaveDto;
-import com.sparta.hhztclone.domain.image.entity.Image;
 import com.sparta.hhztclone.domain.image.service.S3Service;
 import com.sparta.hhztclone.domain.item.dto.ItemRequestDto;
+import com.sparta.hhztclone.domain.item.dto.ItemRequestDto.CreateItemRequestDto;
+import com.sparta.hhztclone.domain.item.dto.ItemRequestDto.EditItemRequestDto;
 import com.sparta.hhztclone.domain.item.dto.ItemResponseDto;
+import com.sparta.hhztclone.domain.item.dto.ItemResponseDto.EditItemResponseDto;
+import com.sparta.hhztclone.domain.item.dto.ItemResponseDto.GetItemResponseDto;
+import com.sparta.hhztclone.domain.item.dto.ItemResponseDto.SearchItemResponseDto;
+import com.sparta.hhztclone.domain.item.entity.Category.CategoryType;
 import com.sparta.hhztclone.domain.item.entity.Item;
 import com.sparta.hhztclone.domain.item.repository.ItemRepository;
+import com.sparta.hhztclone.domain.item.repository.ItemRepositoryImpl;
 import com.sparta.hhztclone.domain.member.entity.Member;
 import com.sparta.hhztclone.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class ItemService {
 
-
     private final S3Service s3Service;
     private final ItemRepository itemRepository;
     private final MemberRepository memberRepository;
-
+    private final ItemRepositoryImpl itemrepositoryImpl;
 
     @Transactional
-    public ItemResponseDto.CreateItemResponseDto createItem(String email, ItemRequestDto.CreateItemRequestDto requestDto, MultipartFile[] multipartFiles) {
+    public ItemResponseDto.CreateItemResponseDto createItem(String email, CreateItemRequestDto requestDto, MultipartFile[] multipartFiles) {
         Member member = memberRepository.findByEmail(email).orElseThrow(
                 () -> new IllegalArgumentException("찾을 수 없는 이메일입니다."));
         ImageSaveDto imageSaveDto = new ImageSaveDto();
@@ -46,13 +46,13 @@ public class ItemService {
         return new ItemResponseDto.CreateItemResponseDto(savedItem);
     }
 
-    public ItemResponseDto.GetItemResponseDto getItem(Long itemId) {
+    public GetItemResponseDto getItem(Long itemId) {
         Item item = itemRepository.findById(itemId).orElseThrow(() -> new IllegalArgumentException("찾을 수 없는 아이템입니다."));
-        return new ItemResponseDto.GetItemResponseDto(item);
+        return new GetItemResponseDto(item);
     }
 
     @Transactional
-    public ItemResponseDto.EditItemResponseDto editItem(Long itemId, String email, ItemRequestDto.EditItemRequestDto requestDto, MultipartFile[] multipartFiles) {
+    public EditItemResponseDto editItem(Long itemId, String email, EditItemRequestDto requestDto, MultipartFile[] multipartFiles) {
         Member member = memberRepository.findByEmail(email).orElseThrow(
                 () -> new IllegalArgumentException("찾을 수 없는 이메일입니다."));
         Item item = itemRepository.findById(itemId).orElseThrow(
@@ -69,7 +69,7 @@ public class ItemService {
         List<String> newImages = s3Service.saveImages(imageSaveDto);
 
         item.update(requestDto.getTitle(),requestDto.getContents(), requestDto.getPrice(), newImages);
-        return new ItemResponseDto.EditItemResponseDto(item);
+        return new EditItemResponseDto(item);
     }
 
     @Transactional
@@ -84,4 +84,21 @@ public class ItemService {
         itemRepository.delete(item);
     }
 
+    public SearchItemResponseDto getItems() {
+        List<GetItemResponseDto> items = itemRepository.findAll().stream()
+                .map(GetItemResponseDto::new).collect(Collectors.toList());
+        return new SearchItemResponseDto(items);
+    }
+
+    public SearchItemResponseDto searchItems(String keyword) {
+        List<GetItemResponseDto> searchedItems = itemrepositoryImpl.searchItems(keyword).stream()
+                .map(GetItemResponseDto::new).collect(Collectors.toList());
+        return new SearchItemResponseDto(searchedItems);
+    }
+
+    public SearchItemResponseDto searchItemsByCategory(CategoryType category) {
+        List<GetItemResponseDto> items = itemRepository.findByCategory(category).stream()
+                .map(GetItemResponseDto::new).collect(Collectors.toList());
+        return new SearchItemResponseDto(items);
+    }
 }

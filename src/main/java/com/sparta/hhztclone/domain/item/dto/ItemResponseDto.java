@@ -1,11 +1,9 @@
 package com.sparta.hhztclone.domain.item.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sparta.hhztclone.domain.item.entity.Item;
-import com.sparta.hhztclone.domain.member.entity.Member;
 import lombok.Getter;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -21,6 +19,8 @@ public class ItemResponseDto {
         private Integer price;
         private List<String> imageUrl;
         private LocalDateTime createdAt;
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
+        private LocalDateTime modifiedAt;
 
         public CreateItemResponseDto(Item item) {
             this.id = item.getId();
@@ -30,6 +30,7 @@ public class ItemResponseDto {
             this.price = item.getPrice();
             this.imageUrl = item.getImageUrl();
             this.createdAt = LocalDateTime.now();
+            this.modifiedAt = LocalDateTime.now();
         }
     }
 
@@ -41,7 +42,10 @@ public class ItemResponseDto {
         private String contents;
         private Integer price;
         private List<String> imageUrl;
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
         private LocalDateTime createdAt;
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
+        private LocalDateTime modifiedAt;
 
         public EditItemResponseDto(Item item) {
             this.id = item.getId();
@@ -51,6 +55,7 @@ public class ItemResponseDto {
             this.price = item.getPrice();
             this.imageUrl = item.getImageUrl();
             this.createdAt = item.getCreatedAt();
+            this.modifiedAt = LocalDateTime.now();
         }
     }
 
@@ -63,7 +68,9 @@ public class ItemResponseDto {
         private String contents;
         private Integer price;
         private List<String> imageUrl;
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
         private LocalDateTime createdAt;
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
         private LocalDateTime updatedAt;
 
         public GetItemResponseDto(Item item) {
@@ -80,24 +87,10 @@ public class ItemResponseDto {
 
     @Getter
     public static class SearchItemResponseDto{
-        private Long id;
-        private String email;
-        private String title;
-        private String contents;
-        private Integer price;
-        private String imageUrl;
-        private LocalDateTime createdAt;
-        private LocalDateTime updatedAt;
+        private List<GetItemResponseDto> items;
 
-        public SearchItemResponseDto(Long id, String email, String title, String contents, Integer price, String imageUrl,LocalDateTime createdAt, LocalDateTime updatedAt) {
-            this.id = id;
-            this.email = email;
-            this.title = title;
-            this.contents = contents;
-            this.price = price;
-            this.imageUrl = imageUrl;
-            this.createdAt = createdAt;
-            this.updatedAt = updatedAt;
+        public SearchItemResponseDto(List<GetItemResponseDto> items) {
+            this.items = items;
         }
     }
 }
