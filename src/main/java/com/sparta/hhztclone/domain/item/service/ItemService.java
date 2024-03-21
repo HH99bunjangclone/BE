@@ -1,9 +1,11 @@
 package com.sparta.hhztclone.domain.item.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.sparta.hhztclone.domain.image.dto.ImageSaveDto;
 import com.sparta.hhztclone.domain.image.entity.Image;
+import com.sparta.hhztclone.domain.image.service.S3Service;
 import com.sparta.hhztclone.domain.item.dto.ItemRequestDto;
 import com.sparta.hhztclone.domain.item.dto.ItemResponseDto;
 import com.sparta.hhztclone.domain.item.entity.Item;
@@ -12,12 +14,14 @@ import com.sparta.hhztclone.domain.member.entity.Member;
 import com.sparta.hhztclone.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -26,17 +30,19 @@ import java.util.List;
 public class ItemService {
 
 
-    private static String bucketName = "aws-bucket-spt-test";
-    private final AmazonS3Client amazonS3Client;
+    private final S3Service s3Service;
     private final ItemRepository itemRepository;
     private final MemberRepository memberRepository;
 
 
     @Transactional
-    public ItemResponseDto.CreateItemResponseDto createItem(String email, ItemRequestDto.CreateItemRequestDto requestDto, ImageSaveDto file) {
-        Member member = memberRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("찾을 수 없는 이메일입니다."));
-        Item savedItem = itemRepository.save(requestDto.toEntity(member));
-        saveImages(file);
+    public ItemResponseDto.CreateItemResponseDto createItem(String email, ItemRequestDto.CreateItemRequestDto requestDto, MultipartFile[] multipartFiles) {
+        Member member = memberRepository.findByEmail(email).orElseThrow(
+                () -> new IllegalArgumentException("찾을 수 없는 이메일입니다."));
+        ImageSaveDto imageSaveDto = new ImageSaveDto();
+        imageSaveDto.setImages(Arrays.asList(multipartFiles));
+        List<String> images = s3Service.saveImages(imageSaveDto);
+        Item savedItem = itemRepository.save(requestDto.toEntity(member,images));
         return new ItemResponseDto.CreateItemResponseDto(savedItem);
     }
 
@@ -46,7 +52,7 @@ public class ItemService {
     }
 
     @Transactional
-    public ItemResponseDto.EditItemResponseDto editItem(Long itemId, String email, ItemRequestDto.EditItemRequestDto requestDto) {
+    public ItemResponseDto.EditItemResponseDto editItem(Long itemId, String email, ItemRequestDto.EditItemRequestDto requestDto, MultipartFile[] multipartFiles) {
         Member member = memberRepository.findByEmail(email).orElseThrow(
                 () -> new IllegalArgumentException("찾을 수 없는 이메일입니다."));
         Item item = itemRepository.findById(itemId).orElseThrow(
@@ -54,7 +60,15 @@ public class ItemService {
         if (item.getMember() != member) {
             throw new IllegalArgumentException("아이템 생성자와 일치하지 않습니다.");
         }
-        item.update(requestDto.getTitle(),requestDto.getContents(), requestDto.getPrice());
+        List<String> existingImageUrls = item.getImageUrl();
+        for (String imageUrl : existingImageUrls) {
+            s3Service.deleteImage(imageUrl);
+        }
+        ImageSaveDto imageSaveDto = new ImageSaveDto();
+        imageSaveDto.setImages(Arrays.asList(multipartFiles));
+        List<String> newImages = s3Service.saveImages(imageSaveDto);
+
+        item.update(requestDto.getTitle(),requestDto.getContents(), requestDto.getPrice(), newImages);
         return new ItemResponseDto.EditItemResponseDto(item);
     }
 
@@ -70,36 +84,4 @@ public class ItemService {
         itemRepository.delete(item);
     }
 
-
-    @Transactional
-    public List<String> saveImages(ImageSaveDto saveDto) {
-        List<String> resultList = new ArrayList<>();
-
-        for (MultipartFile multipartFile : saveDto.getImages()) {
-            String value = saveImage(multipartFile);
-            resultList.add(value);
-        }
-        return resultList;
-    }
-
-    @Transactional
-    public String saveImage(MultipartFile multipartFile) {
-        String originalName = multipartFile.getOriginalFilename();
-        Image image = new Image(originalName);
-        String filename = image.getStoreName();
-
-        try {
-            ObjectMetadata objectMetadata = new ObjectMetadata();
-            objectMetadata.setContentType(multipartFile.getContentType());
-            objectMetadata.setContentLength(multipartFile.getInputStream().available());
-
-            amazonS3Client.putObject(bucketName, filename, multipartFile.getInputStream(), objectMetadata);
-            String accessUrl = amazonS3Client.getUrl(bucketName, filename).toString();
-
-            image.setAccessUrl(accessUrl);
-        } catch (IOException e) {
-
-        }
-        return image.getAccessUrl();
-    }
 }

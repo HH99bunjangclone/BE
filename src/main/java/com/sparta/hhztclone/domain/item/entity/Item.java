@@ -8,8 +8,10 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -36,10 +38,10 @@ public class Item extends TimeStamped {
     @Enumerated(EnumType.STRING)
     private CategoryType category;
 
-    private String imageUrl;
+    private List<String> imageUrl;
 
     @Builder
-    public Item(Member member, String title, String contents, CategoryType category, int price, String imageUrl) {
+    public Item(Member member, String title, String contents, CategoryType category, int price, List<String> imageUrl) {
         this.member = member;
         this.title = title;
         this.contents = contents;
@@ -48,7 +50,7 @@ public class Item extends TimeStamped {
         this.imageUrl = imageUrl;
     }
 
-    public void update(String title, String contents, Integer price) {
+    public void update(String title, String contents, Integer price, List<String> imageUrl) {
         if (title != null) {
             this.title = title;
         }
@@ -56,9 +58,10 @@ public class Item extends TimeStamped {
             this.contents = contents;
         }
         this.price = price;
+        this.imageUrl = imageUrl;
     }
 
-    public void uploadImageUrl(String imageUrl) {
+    public void uploadImageUrl(List<String> imageUrl) {
         this.imageUrl = imageUrl;
     }
 }

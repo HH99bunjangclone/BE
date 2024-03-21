@@ -9,6 +9,8 @@ import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Getter;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 public class ItemRequestDto {
 
 
@@ -16,11 +18,9 @@ public class ItemRequestDto {
     public static class CreateItemRequestDto{
 
         @Schema(description = "제목", example ="옷1")
-        @NotBlank(message = "제목을 입력해 주세요")
         private String title;
 
         @Schema(description = "내용", example ="옷1")
-        @NotBlank(message = "내용을 입력해 주세요.")
         private String contents;
 
         @Schema(description = "가격", example = "1000")
@@ -29,16 +29,16 @@ public class ItemRequestDto {
 
         private CategoryType category;
 
-        private String imageUrl;
+        private List<String> files;
 
-        public Item toEntity(Member member) {
+        public Item toEntity(Member member, List<String> images) {
             return Item.builder()
                     .member(member)
                     .title(this.title)
                     .contents(this.contents)
                     .price(this.price)
                     .category(this.category)
-                    .imageUrl(this.imageUrl)
+                    .imageUrl(images)
                     .build();
         }
     }
@@ -57,10 +57,13 @@ public class ItemRequestDto {
         @PositiveOrZero(message = "가격을 입력해 주세요")
         private int price;
 
-        public EditItemRequestDto(String title, String contents, Integer price) {
+        private List<String> files;
+
+        public EditItemRequestDto(String title, String contents, Integer price, List<String> images) {
             this.title = title;
             this.contents = contents;
             this.price = price;
+            this.files = images;
         }
     }
 

@@ -12,12 +12,15 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-import static com.sparta.hhztclone.domain.item.dto.ItemResponseDto.*;
+import static com.sparta.hhztclone.domain.item.dto.ItemResponseDto.EditItemResponseDto;
 
 @Tag(name = "items", description = "아이템 관련 API")
 public interface ItemControllerDocs {
@@ -25,8 +28,8 @@ public interface ItemControllerDocs {
     @Operation(summary = "아이템 생성 기능", description = "아이템을 생성할 수 있는 API")
     ResponseDto<CreateItemResponseDto> createItem(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestBody @Valid CreateItemRequestDto requestDto,
-            @ModelAttribute ImageSaveDto imageSaveDto
+            @RequestPart @Valid ItemRequestDto.CreateItemRequestDto requestDto,
+            @RequestPart(value = "files", required = false) MultipartFile[] multipartFilesList
     );
 
     @Operation(summary = "아이템 목록 조회 기능", description = "아이템 목록을 조회할 수 있는 API")
@@ -41,7 +44,8 @@ public interface ItemControllerDocs {
     ResponseDto<EditItemResponseDto> editItem(
             @PathVariable Long itemId,
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestBody @Valid ItemRequestDto.EditItemRequestDto requestDto
+            @RequestPart @Valid ItemRequestDto.EditItemRequestDto requestDto,
+            @RequestPart(value = "files", required = false) MultipartFile[] multipartFilesList
     );
 
     @Operation(summary = "아이템 삭제 기능", description = "아이템을 삭제할 수 있는 API")
