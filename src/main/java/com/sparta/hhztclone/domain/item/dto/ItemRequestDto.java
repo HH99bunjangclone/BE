@@ -28,16 +28,15 @@ public class ItemRequestDto {
 
         private CategoryType category;
 
-        private List<String> imgUrl;
+        private List<String> imageUrl;
 
-        public Item toEntity(Member member, List<String> images) {
+        public Item toEntity(Member member) {
             return Item.builder()
                     .member(member)
                     .title(this.title)
                     .contents(this.contents)
                     .price(this.price)
                     .category(this.category)
-                    .imageUrl(images)
                     .build();
         }
     }

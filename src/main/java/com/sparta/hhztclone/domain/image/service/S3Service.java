@@ -3,8 +3,10 @@ package com.sparta.hhztclone.domain.image.service;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.sparta.hhztclone.domain.image.dto.ImageSaveDto;
+import com.sparta.hhztclone.domain.image.dto.ImagesSaveDto;
+import com.sparta.hhztclone.domain.image.dto.ImagesSaveDto.ItemImageResponseDto;
 import com.sparta.hhztclone.domain.image.entity.Image;
+import com.sparta.hhztclone.domain.image.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -24,35 +27,35 @@ public class S3Service {
     private final AmazonS3Client amazonS3Client;
 
     @Transactional
-    public List<String> saveImages(ImageSaveDto saveDto) {
-        List<String> resultList = new ArrayList<>();
+    public List<ItemImageResponseDto> saveImages(ImagesSaveDto saveDto) {
+        List<ItemImageResponseDto> resultList = new ArrayList<>();
 
         for (MultipartFile multipartFile : saveDto.getImages()) {
-            String value = saveImage(multipartFile);
-            resultList.add(value);
+            ItemImageResponseDto itemImageResponseDto = saveImage(multipartFile);
+            resultList.add(itemImageResponseDto);
         }
         return resultList;
     }
 
     @Transactional
-    public String saveImage(MultipartFile multipartFile) {
+    public ItemImageResponseDto saveImage(MultipartFile multipartFile) {
+
         String originalName = multipartFile.getOriginalFilename();
-        Image image = new Image(originalName);
-        String filename = image.getStoreName();
+        String savedImage = getFileName(originalName);
 
         try {
             ObjectMetadata objectMetadata = new ObjectMetadata();
             objectMetadata.setContentType(multipartFile.getContentType());
             objectMetadata.setContentLength(multipartFile.getInputStream().available());
 
-            amazonS3Client.putObject(bucketName, filename, multipartFile.getInputStream(), objectMetadata);
-            String accessUrl = amazonS3Client.getUrl(bucketName, filename).toString();
+            amazonS3Client.putObject(bucketName, savedImage, multipartFile.getInputStream(), objectMetadata);
 
-            image.setAccessUrl(accessUrl);
         } catch (IOException e) {
 
         }
-        return image.getAccessUrl();
+        String accessUrl = amazonS3Client.getUrl(bucketName, savedImage).toString();
+
+        return new ItemImageResponseDto(originalName, savedImage, accessUrl);
     }
 
     @Transactional
@@ -62,4 +65,16 @@ public class S3Service {
 
         amazonS3Client.deleteObject(new DeleteObjectRequest(bucketName,filename));
     }
+
+    //파일 이름 저장을 위한 이름 변환 메서드
+    public String getFileName(String originName) {
+        return UUID.randomUUID() + "." + extractExtension(originName);
+    }
+
+    //이미지에서 확장자 추출 메소드
+    public String extractExtension(String originName) {
+        int index = originName.lastIndexOf('.');
+        return originName.substring(index, originName.length());
+    }
+
 }

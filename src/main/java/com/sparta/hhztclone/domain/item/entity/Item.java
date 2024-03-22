@@ -9,8 +9,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
@@ -36,20 +34,16 @@ public class Item extends TimeStamped {
     @Enumerated(EnumType.STRING)
     private CategoryType category;
 
-    @Column(nullable = false)
-    private List<String> imageUrl;
-
     @Builder
-    public Item(Member member, String title, String contents, CategoryType category, int price, List<String> imageUrl) {
+    public Item(Member member, String title, String contents, CategoryType category, int price) {
         this.member = member;
         this.title = title;
         this.contents = contents;
         this.price = price;
         this.category = category;
-        this.imageUrl = imageUrl;
     }
 
-    public void update(String title, String contents, Integer price, List<String> imageUrl) {
+    public void update(String title, String contents, Integer price) {
         if (title != null) {
             this.title = title;
         }
@@ -57,10 +51,6 @@ public class Item extends TimeStamped {
             this.contents = contents;
         }
         this.price = price;
-        this.imageUrl = imageUrl;
     }
 
-    public void uploadImageUrl(List<String> imageUrl) {
-        this.imageUrl = imageUrl;
-    }
 }
