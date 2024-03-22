@@ -77,6 +77,7 @@ public class ItemService {
         List<Image> imageList = imageRepository.findByItem(item);
         for (Image imageUrl : imageList) {
             s3Service.deleteImage(imageUrl.getStoreName());
+            imageRepository.delete(imageUrl);
         }
         ImagesSaveDto imageSaveDto = new ImagesSaveDto();
         imageSaveDto.setImages(Arrays.asList(multipartFiles));

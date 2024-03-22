@@ -68,7 +68,7 @@ public class S3Service {
 
     //파일 이름 저장을 위한 이름 변환 메서드
     public String getFileName(String originName) {
-        return UUID.randomUUID() + "." + extractExtension(originName);
+        return UUID.randomUUID() + extractExtension(originName);
     }
 
     //이미지에서 확장자 추출 메소드
