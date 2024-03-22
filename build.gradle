@@ -48,7 +48,7 @@ dependencies {
     // redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
-//    runtimeOnly 'org.postgresql:postgresql'
+    runtimeOnly 'org.postgresql:postgresql'
     implementation 'mysql:mysql-connector-java:8.0.32'
 
     // AWS

@@ -1,10 +1,14 @@
 package com.sparta.hhztclone.domain.item.service;
 
-import com.sparta.hhztclone.domain.image.dto.ImageSaveDto;
+import com.sparta.hhztclone.domain.image.dto.ImagesSaveDto;
+import com.sparta.hhztclone.domain.image.dto.ImagesSaveDto.ItemImageResponseDto;
+import com.sparta.hhztclone.domain.image.entity.Image;
+import com.sparta.hhztclone.domain.image.repository.ImageRepository;
 import com.sparta.hhztclone.domain.image.service.S3Service;
 import com.sparta.hhztclone.domain.item.dto.ItemRequestDto.CreateItemRequestDto;
 import com.sparta.hhztclone.domain.item.dto.ItemRequestDto.EditItemRequestDto;
 import com.sparta.hhztclone.domain.item.dto.ItemResponseDto;
+import com.sparta.hhztclone.domain.item.dto.ItemResponseDto.CreateItemResponseDto;
 import com.sparta.hhztclone.domain.item.dto.ItemResponseDto.EditItemResponseDto;
 import com.sparta.hhztclone.domain.item.dto.ItemResponseDto.GetItemResponseDto;
 import com.sparta.hhztclone.domain.item.dto.ItemResponseDto.SearchItemResponseDto;
@@ -20,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,21 +38,31 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final MemberRepository memberRepository;
     private final ItemRepositoryImpl itemrepositoryImpl;
+    private final ImageRepository imageRepository;
+    private final ItemImageService itemImageService;
 
     @Transactional
-    public ItemResponseDto.CreateItemResponseDto createItem(String email, CreateItemRequestDto requestDto, MultipartFile[] multipartFiles) {
+    public CreateItemResponseDto createItem(String email, CreateItemRequestDto requestDto, MultipartFile[] multipartFiles) {
         Member member = memberRepository.findByEmail(email).orElseThrow(
                 () -> new IllegalArgumentException("찾을 수 없는 이메일입니다."));
-        ImageSaveDto imageSaveDto = new ImageSaveDto();
-        imageSaveDto.setImages(Arrays.asList(multipartFiles));
-        List<String> images = s3Service.saveImages(imageSaveDto);
-        Item savedItem = itemRepository.save(requestDto.toEntity(member,images));
-        return new ItemResponseDto.CreateItemResponseDto(savedItem);
+
+        Item item = requestDto.toEntity(member);
+        List<String> imageUrl = new ArrayList<>();
+        for (MultipartFile multipartFile : multipartFiles) {
+            ItemImageResponseDto itemImage = itemImageService.createItemImage(multipartFile, item);
+            String accessUrl = itemImage.getAccessUrl();
+            imageUrl.add(accessUrl);
+        }
+        Item itemWithImage = itemRepository.save(item);
+
+
+        return new CreateItemResponseDto(itemWithImage, imageUrl);
     }
 
     public GetItemResponseDto getItem(Long itemId) {
-        Item item = itemRepository.findById(itemId).orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
-        return new GetItemResponseDto(item);
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> new IllegalArgumentException("찾을 수 없는 아이템입니다."));
+        List<String> byItem = imageRepository.findByItem(item).stream().map(Image::getAccessUrl).collect(Collectors.toList());
+        return new GetItemResponseDto(item, byItem);
     }
 
     @Transactional
@@ -55,20 +70,25 @@ public class ItemService {
         Member member = memberRepository.findByEmail(email).orElseThrow(
                 () -> new IllegalArgumentException("찾을 수 없는 이메일입니다."));
         Item item = itemRepository.findById(itemId).orElseThrow(
-                () -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+                () -> new IllegalArgumentException("찾을 수 없는 아이템입니다."));
         if (item.getMember() != member) {
-            throw new IllegalArgumentException("해당 상품의 등록자와 일치하지 않습니다.");
+            throw new IllegalArgumentException("아이템 생성자와 일치하지 않습니다.");
         }
-        List<String> existingImageUrls = item.getImageUrl();
-        for (String imageUrl : existingImageUrls) {
-            s3Service.deleteImage(imageUrl);
+        List<Image> imageList = imageRepository.findByItem(item);
+        for (Image imageUrl : imageList) {
+            s3Service.deleteImage(imageUrl.getStoreName());
         }
-        ImageSaveDto imageSaveDto = new ImageSaveDto();
+        ImagesSaveDto imageSaveDto = new ImagesSaveDto();
         imageSaveDto.setImages(Arrays.asList(multipartFiles));
-        List<String> newImages = s3Service.saveImages(imageSaveDto);
 
-        item.update(requestDto.getTitle(),requestDto.getContents(), requestDto.getPrice(), newImages);
-        return new EditItemResponseDto(item);
+        List<String> imageUrls = new ArrayList<>();
+        for (MultipartFile multipartFile : multipartFiles) {
+            ItemImageResponseDto itemImage = itemImageService.createItemImage(multipartFile, item);
+            String accessUrl = itemImage.getAccessUrl();
+            imageUrls.add(accessUrl);
+        }
+        item.update(requestDto.getTitle(), requestDto.getContents(), requestDto.getPrice());
+        return new EditItemResponseDto(item, imageUrls);
     }
 
     @Transactional
@@ -76,28 +96,67 @@ public class ItemService {
         Member member = memberRepository.findByEmail(email).orElseThrow(
                 () -> new IllegalArgumentException("찾을 수 없는 이메일입니다."));
         Item item = itemRepository.findById(itemId).orElseThrow(
-                () -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+                () -> new IllegalArgumentException("찾을 수 없는 아이템입니다."));
         if (item.getMember() != member) {
-            throw new IllegalArgumentException("해당 상품의 등록자와 일치하지 않습니다.");
+            throw new IllegalArgumentException("아이템 생성자와 일치하지 않습니다.");
         }
-        itemRepository.delete(item);
+        List<Image> byItem = imageRepository.findByItem(item);
+        for (Image image : byItem) {
+            imageRepository.delete(image);
+            s3Service.deleteImage(image.getAccessUrl());
+        }
     }
 
     public SearchItemResponseDto getItems() {
-        List<GetItemResponseDto> items = itemRepository.findAll().stream()
-                .map(GetItemResponseDto::new).collect(Collectors.toList());
+        List<Item> allItem = itemRepository.findAll();
+
+        List<GetItemResponseDto> items = new ArrayList<>();
+        for (Item item : allItem) {
+            List<Image> images = imageRepository.findByItem(item);
+
+            List<String> imageUrls = new ArrayList<>();
+            for (Image image : images) {
+                imageUrls.add(image.getAccessUrl());
+            }
+
+            GetItemResponseDto getItemResponseDto = new GetItemResponseDto(item, imageUrls);
+            items.add(getItemResponseDto);
+        }
         return new SearchItemResponseDto(items);
     }
 
     public SearchItemResponseDto searchItems(String keyword) {
-        List<GetItemResponseDto> searchedItems = itemrepositoryImpl.searchItems(keyword).stream()
-                .map(GetItemResponseDto::new).collect(Collectors.toList());
-        return new SearchItemResponseDto(searchedItems);
+        List<Item> allItem = itemrepositoryImpl.searchItems(keyword);
+
+        List<GetItemResponseDto> items = new ArrayList<>();
+        for (Item item : allItem) {
+            List<Image> images = imageRepository.findByItem(item);
+
+            List<String> imageUrls = new ArrayList<>();
+            for (Image image : images) {
+                imageUrls.add(image.getAccessUrl());
+            }
+            GetItemResponseDto getItemResponseDto = new GetItemResponseDto(item, imageUrls);
+            items.add(getItemResponseDto);
+        }
+
+        return new SearchItemResponseDto(items);
     }
 
     public SearchItemResponseDto searchItemsByCategory(CategoryType category) {
-        List<GetItemResponseDto> items = itemRepository.findByCategory(category).stream()
-                .map(GetItemResponseDto::new).collect(Collectors.toList());
+        List<Item> allItem = itemRepository.findByCategory(category);
+
+        List<GetItemResponseDto> items = new ArrayList<>();
+        for (Item item : allItem) {
+            List<Image> images = imageRepository.findByItem(item);
+
+            List<String> imageUrls = new ArrayList<>();
+            for (Image image : images) {
+                imageUrls.add(image.getAccessUrl());
+            }
+            GetItemResponseDto getItemResponseDto = new GetItemResponseDto(item, imageUrls);
+            items.add(getItemResponseDto);
+        }
         return new SearchItemResponseDto(items);
     }
 }
