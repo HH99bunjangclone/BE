@@ -7,42 +7,9 @@ import java.time.LocalDateTime;
 
 public class MemberResponseDto {
 
-    public record SignupMemberResponseDto(
-            String email
-    ) {
-        public SignupMemberResponseDto(Member member) {
-            this(
-                    member.getEmail()
-            );
-        }
-    }
+    public record CheckMemberEmailResponseDto(Boolean isExist) {}
 
-    public record LoginResponseDto(
-            String token
-    ) {
-    }
-
-    public record EditMemberResponseDto(
-            Long id
-    ) {
-        public EditMemberResponseDto(Member member) {
-            this(
-                    member.getId()
-            );
-        }
-    }
-
-    public record CheckMemberEmailResponseDto(
-            Boolean isExist
-    ) {
-
-    }
-
-    public record CheckMemberNicknameResponseDto(
-            Boolean isExist
-    ) {
-
-    }
+    public record CheckMemberNicknameResponseDto(Boolean isExist) {}
 
     public record GetMemberResponseDto(
             Long id,
