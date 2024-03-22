@@ -21,7 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("api/v1/item")
+@RequestMapping("/api/v1/item")
 @DynamicUpdate
 @Slf4j
 public class ItemController implements ItemControllerDocs {
@@ -32,7 +32,7 @@ public class ItemController implements ItemControllerDocs {
     public ResponseDto<CreateItemResponseDto> createItem(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestPart @Valid ItemRequestDto.CreateItemRequestDto requestDto,
-            @RequestPart(value = "files", required = false) MultipartFile[] multipartFilesList
+            @RequestPart(value = "imgList", required = false) MultipartFile[] multipartFilesList
 
     ) {
         CreateItemResponseDto responseDto = itemService.createItem(userDetails.getUsername(), requestDto, multipartFilesList);
@@ -55,13 +55,13 @@ public class ItemController implements ItemControllerDocs {
 
     @GetMapping("/search")
     public ResponseDto<SearchItemResponseDto> searchItems(
-            @RequestParam(defaultValue = "title") String keyword
+            @RequestParam(defaultValue = "title") String title
     ) {
-        SearchItemResponseDto responseDto = itemService.searchItems(keyword);
+        SearchItemResponseDto responseDto = itemService.searchItems(title);
         return ResponseDto.success("아이템 검색 기능",responseDto);
     }
 
-    @GetMapping("/{category}/category")
+    @GetMapping("/category")
     public ResponseDto<SearchItemResponseDto> searchItemsByCategory(
             @RequestParam(defaultValue = "category") CategoryType category
     ) {
@@ -69,12 +69,12 @@ public class ItemController implements ItemControllerDocs {
         return ResponseDto.success("아이템 검색 기능",responseDto);
     }
 
-    @PutMapping(value = "/{itemId}",consumes = {MediaType.APPLICATION_JSON_VALUE,MediaType.MULTIPART_FORM_DATA_VALUE}) //@PatchMapping
+    @PutMapping(value = "/{itemId}",consumes = {MediaType.APPLICATION_JSON_VALUE,MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseDto<ItemResponseDto.EditItemResponseDto> editItem(
             @PathVariable Long itemId,
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestPart @Valid ItemRequestDto.EditItemRequestDto requestDto,
-            @RequestPart(value = "files", required = false) MultipartFile[] multipartFilesList
+            @RequestPart(value = "imgList", required = false) MultipartFile[] multipartFilesList
     ) {
         ItemResponseDto.EditItemResponseDto responseDto = itemService.editItem(itemId, userDetails.getUsername(), requestDto, multipartFilesList);
         return ResponseDto.success("아이템 수정 기능", responseDto);

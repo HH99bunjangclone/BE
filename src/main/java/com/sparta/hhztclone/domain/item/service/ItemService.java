@@ -2,7 +2,6 @@ package com.sparta.hhztclone.domain.item.service;
 
 import com.sparta.hhztclone.domain.image.dto.ImageSaveDto;
 import com.sparta.hhztclone.domain.image.service.S3Service;
-import com.sparta.hhztclone.domain.item.dto.ItemRequestDto;
 import com.sparta.hhztclone.domain.item.dto.ItemRequestDto.CreateItemRequestDto;
 import com.sparta.hhztclone.domain.item.dto.ItemRequestDto.EditItemRequestDto;
 import com.sparta.hhztclone.domain.item.dto.ItemResponseDto;
@@ -47,7 +46,7 @@ public class ItemService {
     }
 
     public GetItemResponseDto getItem(Long itemId) {
-        Item item = itemRepository.findById(itemId).orElseThrow(() -> new IllegalArgumentException("찾을 수 없는 아이템입니다."));
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
         return new GetItemResponseDto(item);
     }
 
@@ -56,9 +55,9 @@ public class ItemService {
         Member member = memberRepository.findByEmail(email).orElseThrow(
                 () -> new IllegalArgumentException("찾을 수 없는 이메일입니다."));
         Item item = itemRepository.findById(itemId).orElseThrow(
-                () -> new IllegalArgumentException("찾을 수 없는 아이템입니다."));
+                () -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
         if (item.getMember() != member) {
-            throw new IllegalArgumentException("아이템 생성자와 일치하지 않습니다.");
+            throw new IllegalArgumentException("해당 상품의 등록자와 일치하지 않습니다.");
         }
         List<String> existingImageUrls = item.getImageUrl();
         for (String imageUrl : existingImageUrls) {
@@ -77,9 +76,9 @@ public class ItemService {
         Member member = memberRepository.findByEmail(email).orElseThrow(
                 () -> new IllegalArgumentException("찾을 수 없는 이메일입니다."));
         Item item = itemRepository.findById(itemId).orElseThrow(
-                () -> new IllegalArgumentException("찾을 수 없는 아이템입니다."));
+                () -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
         if (item.getMember() != member) {
-            throw new IllegalArgumentException("아이템 생성자와 일치하지 않습니다.");
+            throw new IllegalArgumentException("해당 상품의 등록자와 일치하지 않습니다.");
         }
         itemRepository.delete(item);
     }

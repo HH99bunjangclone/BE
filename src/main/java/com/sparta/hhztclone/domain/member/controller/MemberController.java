@@ -9,6 +9,8 @@ import com.sparta.hhztclone.domain.member.dto.MemberResponseDto.EmailSendRespons
 import com.sparta.hhztclone.domain.member.service.EmailService;
 import com.sparta.hhztclone.domain.member.service.MemberService;
 import com.sparta.hhztclone.global.dto.ResponseDto;
+import com.sparta.hhztclone.global.exception.ValidationGroup.*;
+import com.sparta.hhztclone.global.exception.ValidationSequence;
 import com.sparta.hhztclone.global.security.UserDetailsImpl;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -25,7 +27,7 @@ import static com.sparta.hhztclone.domain.member.dto.MemberResponseDto.GetMember
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/user")
-@Validated
+@Validated(ValidationSequence.class)
 public class MemberController implements MemberControllerDocs {
 
     private final EmailService emailService;
@@ -42,8 +44,8 @@ public class MemberController implements MemberControllerDocs {
     @GetMapping("/email/check")
     public ResponseDto<CheckMemberEmailResponseDto> emailCheck(
             @RequestParam
-            @Email(message = "이메일 형식이 아닙니다.")
-            @NotBlank(message = "이메일을 입력해주세요.")
+            @NotBlank(message = "이메일을 입력해주세요.", groups = NotBlankGroup.class)
+            @Email(message = "이메일 형식이 아닙니다.", groups = EmailGroup.class)
             String email) {
         boolean isExist = memberService.emailCheck(email);
         return ResponseDto.success("이메일 중복체크 성공", new CheckMemberEmailResponseDto(isExist));
@@ -65,7 +67,7 @@ public class MemberController implements MemberControllerDocs {
     }
 
     // 회원 정보 조회
-    @GetMapping("/{userId}")
+    @GetMapping("mypage")
     public ResponseDto<GetMemberResponseDto> getUser(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         GetMemberResponseDto responseDto = memberService.getMember(userDetails.getUsername());
         return ResponseDto.success("회원 정보 조회 성공", responseDto);
@@ -76,8 +78,8 @@ public class MemberController implements MemberControllerDocs {
     @GetMapping("/nickname/check")
     public ResponseDto<CheckMemberNicknameResponseDto> nicknameCheck(
             @RequestParam
-            @NotBlank(message = "닉네임을 입력해주세요.")
-            @Pattern(regexp = "^[가-힣a-zA-Z0-9]{2,10}$", message = "특수문자를 제외한 2~10자리")
+            @NotBlank(message = "닉네임을 입력해주세요.", groups = NotBlankGroup.class)
+            @Pattern(regexp = "^[가-힣a-zA-Z0-9]{2,10}$", message = "특수문자를 제외한 2~10자리", groups = PatternGroup.class)
             String nickname
     ) {
         boolean isExist = memberService.nicknameCheck(nickname);

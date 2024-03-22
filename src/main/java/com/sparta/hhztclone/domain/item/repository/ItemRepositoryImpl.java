@@ -19,9 +19,7 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
     @Override
     public List<Item> searchItems(String keyword) {
         return querydslConfig.jpaQueryFactory().selectFrom(item)
-                .where(
-                        equalsType(keyword)
-                )
+                .where(equalsType(keyword))
                 .orderBy(item.createdAt.desc())
                 .fetch();
     }

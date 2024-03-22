@@ -28,7 +28,7 @@ public class ItemRequestDto {
 
         private CategoryType category;
 
-        private List<String> files;
+        private List<String> imgUrl;
 
         public Item toEntity(Member member, List<String> images) {
             return Item.builder()

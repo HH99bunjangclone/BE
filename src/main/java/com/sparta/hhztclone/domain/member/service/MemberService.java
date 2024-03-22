@@ -4,7 +4,6 @@ import com.sparta.hhztclone.domain.member.dto.MemberRequestDto.SignupMemberReque
 import com.sparta.hhztclone.domain.member.dto.MemberResponseDto.GetMemberResponseDto;
 import com.sparta.hhztclone.domain.member.entity.Member;
 import com.sparta.hhztclone.domain.member.repository.MemberRepository;
-import com.sparta.hhztclone.global.dto.ResponseDto;
 import com.sparta.hhztclone.global.exception.ErrorCode;
 import com.sparta.hhztclone.global.exception.RestApiException;
 import lombok.RequiredArgsConstructor;
@@ -21,16 +20,16 @@ public class MemberService {
 
     // 회원가입
     @Transactional
-    public ResponseDto signup(SignupMemberRequestDto requestDto) {
+    public void signup(SignupMemberRequestDto requestDto) {
         if (memberRepository.existsByEmail(requestDto.email())) {
             throw new RestApiException(ErrorCode.ALREADY_EXIST_EMAIL.getMsg());
         }
         String password = passwordEncoder.encode(requestDto.password());
         Member member = memberRepository.save(requestDto.toEntity(password));
-        return ResponseDto.success("회원가입 성공", null);
     }
 
     // 회원 정보 조회
+    @Transactional(readOnly = true)
     public GetMemberResponseDto getMember(String email) {
         Member member = memberRepository.findByEmail(email).orElseThrow(() ->
                 new RestApiException(ErrorCode.NOT_FOUND_MEMBER.getMsg()));
