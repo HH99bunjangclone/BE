@@ -1,9 +1,7 @@
 package com.sparta.hhztclone.global.config;
 
 import com.sparta.hhztclone.global.jwt.JwtUtil;
-import com.sparta.hhztclone.global.security.JwtAuthenticationFilter;
-import com.sparta.hhztclone.global.security.JwtAuthorizationFilter;
-import com.sparta.hhztclone.global.security.UserDetailsServiceImpl;
+import com.sparta.hhztclone.global.security.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -11,7 +9,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -29,7 +26,6 @@ import java.util.Arrays;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-//@EnableMethodSecurity(securedEnabled = true) //@Secured 설정
 public class WebSecurityConfig {
 
     private final JwtUtil jwtUtil;
@@ -63,7 +59,7 @@ public class WebSecurityConfig {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         // 배포시 허용할 출처 추가하기
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:8080", "http://localhost:80", "http://localhost:3000"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:8080", "http://localhost:80", "http://localhost:5173"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
         configuration.setAllowCredentials(true);
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "TOKEN_ID", "X-Requested-With", "Content-Type", "Content-Length", "Cache-Control"));
@@ -92,7 +88,6 @@ public class WebSecurityConfig {
                         .requestMatchers("/").permitAll() // 메인 페이지 요청 허가
                         .requestMatchers("/api/v1/user/**").permitAll() // 회원가입, 로그인 요청 허가
                         .requestMatchers(HttpMethod.GET,"/api/v1/item", "/api/v1/item/category", "/api/v1/item/{itemId}", "/api/v1/item/search").permitAll() // 조회 요청 허가
-                        // 스웨거 이거 맞나요 ? 확인부탁드려요
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "swagger-ui.html").permitAll()
                         .anyRequest().authenticated() // 그 외 모든 요청 인증처리
         );
@@ -102,6 +97,9 @@ public class WebSecurityConfig {
         // 필터 관리
         http.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+
+        // 예외 핸들러
+//        http.exceptionHandling(handler -> handler.authenticationEntryPoint(new CustomAuthenticationEntryPoint()));
 
         return http.build();
     }

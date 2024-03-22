@@ -1,6 +1,7 @@
 package com.sparta.hhztclone.domain.member.entity;
 
 import com.sparta.hhztclone.domain.member.entity.type.AuthorityType;
+import com.sparta.hhztclone.global.entity.TimeStamped;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -10,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
-public class Member {
+public class Member extends TimeStamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
