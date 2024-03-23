@@ -23,7 +23,9 @@
 - RDS, EC2
 - Redis
 - MySQL
-- Sqagger UI
+- Swagger UI
+- JWT
+- Qeurydsl
 
 🟢 구현 기능
 --------
