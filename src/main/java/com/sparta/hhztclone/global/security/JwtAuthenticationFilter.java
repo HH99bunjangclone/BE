@@ -60,6 +60,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         String token = jwtUtil.createToken(email, role);
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
+        response.setHeader(JwtUtil.AUTHORIZATION_HEADER, token);
 
         CustomResponseUtil.success(response, null);
     }
