@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Getter;
+import lombok.Setter;
 
 import static com.sparta.hhztclone.domain.item.valid.ItemValidationGroup.*;
 
@@ -14,6 +15,7 @@ public class ItemRequestDto {
 
 
     @Getter
+    @Setter
     public static class CreateItemRequestDto{
 
         @Schema(description = "제목", example ="옷1")
@@ -42,6 +44,7 @@ public class ItemRequestDto {
     }
 
     @Getter
+    @Setter
     public static class EditItemRequestDto{
         @Schema(description = "제목", example = "옷2")
         @NotBlank(message = "제목을 입력해 주세요.", groups = TitleBlankGroup.class)
