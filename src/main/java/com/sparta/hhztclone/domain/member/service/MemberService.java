@@ -24,6 +24,11 @@ public class MemberService {
         if (memberRepository.existsByEmail(requestDto.email())) {
             throw new RestApiException(ErrorCode.ALREADY_EXIST_EMAIL.getMsg());
         }
+
+        if (memberRepository.existsByNickname(requestDto.nickname())) {
+            throw new RestApiException(ErrorCode.ALREADY_EXIST_NICKNAME.getMsg());
+        }
+
         String password = passwordEncoder.encode(requestDto.password());
         Member member = memberRepository.save(requestDto.toEntity(password));
     }
