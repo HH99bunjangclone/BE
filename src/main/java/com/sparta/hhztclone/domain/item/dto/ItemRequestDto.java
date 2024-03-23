@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Getter;
 
-import java.util.List;
+import static com.sparta.hhztclone.domain.item.valid.ItemValidationGroup.*;
 
 public class ItemRequestDto {
 
@@ -17,18 +17,18 @@ public class ItemRequestDto {
     public static class CreateItemRequestDto{
 
         @Schema(description = "제목", example ="옷1")
+        @NotBlank(message = "제목을 입력해 주세요.", groups = TitleBlankGroup.class)
         private String title;
 
         @Schema(description = "내용", example ="옷1")
+        @NotBlank(message = "내용을 입력해 주세요", groups = ContentsBlankGroup.class)
         private String contents;
 
         @Schema(description = "가격", example = "1000")
-        @PositiveOrZero(message = "가격을 입력해 주세요")
-        private int price;
+        @PositiveOrZero(message = "가격을 입력해 주세요", groups = PriceRangeGroup.class)
+        private Integer price;
 
         private CategoryType category;
-
-        private List<String> imageUrl;
 
         public Item toEntity(Member member) {
             return Item.builder()
@@ -44,24 +44,21 @@ public class ItemRequestDto {
     @Getter
     public static class EditItemRequestDto{
         @Schema(description = "제목", example = "옷2")
-        @NotBlank(message = "제목을 입력해 주세요")
+        @NotBlank(message = "제목을 입력해 주세요.", groups = TitleBlankGroup.class)
         private String title;
 
         @Schema(description = "내용", example = "옷2")
-        @NotBlank(message = "내용을 입력해 주세요.")
+        @NotBlank(message = "내용을 입력해 주세요", groups = ContentsBlankGroup.class)
         private String contents;
 
         @Schema(description = "가격", example = "1000")
-        @PositiveOrZero(message = "가격을 입력해 주세요")
-        private int price;
+        @PositiveOrZero(message = "가격을 입력해 주세요", groups = PriceRangeGroup.class)
+        private Integer price;
 
-        private List<String> imgList;
-
-        public EditItemRequestDto(String title, String contents, Integer price, List<String> images) {
+        public EditItemRequestDto(String title, String contents, Integer price) {
             this.title = title;
             this.contents = contents;
             this.price = price;
-            this.imgList = images;
         }
     }
 

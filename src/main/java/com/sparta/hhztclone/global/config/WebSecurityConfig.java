@@ -1,7 +1,10 @@
 package com.sparta.hhztclone.global.config;
 
 import com.sparta.hhztclone.global.jwt.JwtUtil;
-import com.sparta.hhztclone.global.security.*;
+import com.sparta.hhztclone.global.security.CustomAuthenticationEntryPoint;
+import com.sparta.hhztclone.global.security.JwtAuthenticationFilter;
+import com.sparta.hhztclone.global.security.JwtAuthorizationFilter;
+import com.sparta.hhztclone.global.security.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -99,7 +102,7 @@ public class WebSecurityConfig {
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         // 예외 핸들러
-//        http.exceptionHandling(handler -> handler.authenticationEntryPoint(new CustomAuthenticationEntryPoint()));
+        http.exceptionHandling(handler -> handler.authenticationEntryPoint(new CustomAuthenticationEntryPoint()));
 
         return http.build();
     }

@@ -7,7 +7,6 @@ import com.sparta.hhztclone.domain.image.repository.ImageRepository;
 import com.sparta.hhztclone.domain.image.service.S3Service;
 import com.sparta.hhztclone.domain.item.dto.ItemRequestDto.CreateItemRequestDto;
 import com.sparta.hhztclone.domain.item.dto.ItemRequestDto.EditItemRequestDto;
-import com.sparta.hhztclone.domain.item.dto.ItemResponseDto;
 import com.sparta.hhztclone.domain.item.dto.ItemResponseDto.CreateItemResponseDto;
 import com.sparta.hhztclone.domain.item.dto.ItemResponseDto.EditItemResponseDto;
 import com.sparta.hhztclone.domain.item.dto.ItemResponseDto.GetItemResponseDto;

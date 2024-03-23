@@ -1,22 +1,22 @@
 package com.sparta.hhztclone.domain.member.controller;
 
 import com.sparta.hhztclone.domain.member.controller.docs.MemberControllerDocs;
-import com.sparta.hhztclone.domain.member.dto.MemberResponseDto;
-import com.sparta.hhztclone.domain.member.dto.MemberResponseDto.CheckMemberEmailResponseDto;
-import com.sparta.hhztclone.domain.member.dto.MemberResponseDto.CheckMemberNicknameResponseDto;
 import com.sparta.hhztclone.domain.member.dto.MemberResponseDto.EmailAuthResponseDto;
 import com.sparta.hhztclone.domain.member.dto.MemberResponseDto.EmailSendResponseDto;
 import com.sparta.hhztclone.domain.member.service.EmailService;
 import com.sparta.hhztclone.domain.member.service.MemberService;
 import com.sparta.hhztclone.global.dto.ResponseDto;
-import com.sparta.hhztclone.global.exception.ValidationGroup.*;
-import com.sparta.hhztclone.global.exception.ValidationSequence;
+import com.sparta.hhztclone.domain.member.valid.MemberValidationGroup.EmailGroup;
+import com.sparta.hhztclone.domain.member.valid.MemberValidationGroup.NicknamePatternGroup;
+import com.sparta.hhztclone.domain.member.valid.MemberValidationGroup.NotBlankGroup;
+import com.sparta.hhztclone.domain.member.valid.MemberValidationSequence;
 import com.sparta.hhztclone.global.security.UserDetailsImpl;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +27,7 @@ import static com.sparta.hhztclone.domain.member.dto.MemberResponseDto.GetMember
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/user")
-@Validated(ValidationSequence.class)
+@Validated(MemberValidationSequence.class)
 public class MemberController implements MemberControllerDocs {
 
     private final EmailService emailService;
@@ -42,18 +42,28 @@ public class MemberController implements MemberControllerDocs {
     
     // 이메일 중복 체크 요청
     @GetMapping("/email/check")
-    public ResponseDto<CheckMemberEmailResponseDto> emailCheck(
+    public ResponseEntity emailCheck(
             @RequestParam
             @NotBlank(message = "이메일을 입력해주세요.", groups = NotBlankGroup.class)
-            @Email(message = "이메일 형식이 아닙니다.", groups = EmailGroup.class)
+            @Email(message = "잘못된 이메일 형식입니다.", groups = EmailGroup.class)
             String email) {
         boolean isExist = memberService.emailCheck(email);
-        return ResponseDto.success("이메일 중복체크 성공", new CheckMemberEmailResponseDto(isExist));
+
+        if(isExist) {
+            return ResponseEntity.badRequest().body(ResponseDto.fail("사용 불가능한 이메일입니다."));
+        }
+
+        return ResponseEntity.ok(ResponseDto.success("사용 가능한 이메일입니다.", null));
     }
     
     // 이메일 인증 코드 발송
     @PostMapping("/email-code")
-    public ResponseDto<EmailSendResponseDto> emailSend(@RequestParam String email) {
+    public ResponseDto<EmailSendResponseDto> emailSend(
+            @RequestParam
+            @NotBlank(message = "이메일을 입력해주세요.", groups = NotBlankGroup.class)
+            @Email(message = "잘못된 이메일 형식입니다.", groups = EmailGroup.class)
+            String email
+    ) {
         String emailCode = emailService.emailSend(email);
         return ResponseDto.success("이메일 인증 코드 발송 성공", new EmailSendResponseDto(emailCode));
     }
@@ -61,7 +71,9 @@ public class MemberController implements MemberControllerDocs {
     // 이메일 인증 코드 체크
     @GetMapping("/email-auth")
     public ResponseDto<EmailAuthResponseDto> emailAuthCheck(@RequestParam("email") String email,
-                                                            @RequestParam("emailCode") String emailCode) {
+                                                            @RequestParam("emailCode")
+                                                            @NotBlank(message = "인증 코드를 입력해주세요.", groups = NotBlankGroup.class)
+                                                            String emailCode) {
         boolean success = emailService.emailAuthCheck(email, emailCode);
         return ResponseDto.success("이메일 인증 성공", new EmailAuthResponseDto(success));
     }
@@ -76,13 +88,18 @@ public class MemberController implements MemberControllerDocs {
     // 닉네임 중복 체크 요청
     @Valid
     @GetMapping("/nickname/check")
-    public ResponseDto<CheckMemberNicknameResponseDto> nicknameCheck(
+    public ResponseEntity nicknameCheck(
             @RequestParam
             @NotBlank(message = "닉네임을 입력해주세요.", groups = NotBlankGroup.class)
-            @Pattern(regexp = "^[가-힣a-zA-Z0-9]{2,10}$", message = "특수문자를 제외한 2~10자리", groups = PatternGroup.class)
+            @Pattern(regexp = "^[가-힣a-zA-Z0-9]{2,10}$", message = "닉네임은 특수문자를 제외한 2~10자리를 입력 해주세요.", groups = NicknamePatternGroup.class)
             String nickname
     ) {
         boolean isExist = memberService.nicknameCheck(nickname);
-        return ResponseDto.success("닉네임 중복체크 성공", new MemberResponseDto.CheckMemberNicknameResponseDto(isExist));
+
+        if(isExist) {
+            return ResponseEntity.badRequest().body(ResponseDto.fail("사용 불가능한 닉네임입니다."));
+        }
+
+        return ResponseEntity.ok(ResponseDto.success("사용 가능한 닉네임입니다.", null));
     }
 }

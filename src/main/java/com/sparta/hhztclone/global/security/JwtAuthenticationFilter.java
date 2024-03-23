@@ -3,8 +3,8 @@ package com.sparta.hhztclone.global.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.hhztclone.domain.member.dto.MemberRequestDto;
 import com.sparta.hhztclone.domain.member.dto.MemberRequestDto.LoginRequestDto;
-import com.sparta.hhztclone.domain.member.dto.MemberResponseDto;
 import com.sparta.hhztclone.domain.member.entity.type.AuthorityType;
+import com.sparta.hhztclone.global.exception.LoginException;
 import com.sparta.hhztclone.global.jwt.JwtUtil;
 import com.sparta.hhztclone.global.util.CustomResponseUtil;
 import jakarta.servlet.FilterChain;
@@ -34,6 +34,12 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         try {
             MemberRequestDto.LoginRequestDto requestDto = new ObjectMapper().readValue(request.getInputStream(), LoginRequestDto.class);
 
+            if (requestDto.email() == null | requestDto.email().isEmpty()) {
+                throw new LoginException("이메일을 입력해 주세요.");
+            } else if (requestDto.password() == null | requestDto.password().isEmpty()) {
+                throw new LoginException("비밀번호를 입력해 주세요.");
+            }
+
             return getAuthenticationManager().authenticate(
                     new UsernamePasswordAuthenticationToken(
                             requestDto.email(),
@@ -60,6 +66,10 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
-        CustomResponseUtil.fail(response, "로그인 실패", HttpStatus.FORBIDDEN);
+        if (failed instanceof LoginException) {
+            CustomResponseUtil.fail(response, failed.getMessage(), HttpStatus.BAD_REQUEST);
+        } else {
+            CustomResponseUtil.fail(response, "아이디 또는 비밀번호가 틀렸습니다.", HttpStatus.FORBIDDEN);
+        }
     }
 }
