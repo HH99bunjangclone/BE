@@ -105,6 +105,7 @@ public class ItemService {
             imageRepository.delete(image);
             s3Service.deleteImage(image.getAccessUrl());
         }
+        itemRepository.delete(item);
     }
 
     public SearchItemResponseDto getItems() {
