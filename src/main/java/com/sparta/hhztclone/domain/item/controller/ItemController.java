@@ -79,11 +79,10 @@ public class ItemController implements ItemControllerDocs {
     public ResponseDto<ItemResponseDto.EditItemResponseDto> editItem(
             @PathVariable Long itemId,
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestPart @Valid ItemRequestDto.EditItemRequestDto requestDto,
-            @RequestPart(value = "imgList", required = false) MultipartFile[] multipartFilesList
+            @RequestPart @Valid ItemRequestDto.EditItemRequestDto requestDto
     ) {
         try {
-            ItemResponseDto.EditItemResponseDto responseDto = itemService.editItem(itemId, userDetails.getUsername(), requestDto, multipartFilesList);
+            ItemResponseDto.EditItemResponseDto responseDto = itemService.editItem(itemId, userDetails.getUsername(), requestDto);
             return ResponseDto.success("아이템 수정 기능", responseDto);
         } catch (StringIndexOutOfBoundsException e) {
             throw new IllegalArgumentException("1장 이상의 이미지를 선택해 주세요.");

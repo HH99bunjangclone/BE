@@ -90,6 +90,7 @@ public class WebSecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll() // resources 접근 허용 설정
                         .requestMatchers("/").permitAll() // 메인 페이지 요청 허가
+                        .requestMatchers("/api/v1/user/mypage").authenticated()
                         .requestMatchers("/api/v1/user/**").permitAll() // 회원가입, 로그인 요청 허가
                         .requestMatchers(HttpMethod.GET,"/api/v1/item", "/api/v1/item/category", "/api/v1/item/{itemId}", "/api/v1/item/search").permitAll() // 조회 요청 허가
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "swagger-ui.html").permitAll()
