@@ -16,7 +16,8 @@ public class ContactAppConfig {
     public Jackson2ObjectMapperBuilderCustomizer jsonCustomizer() {
         return builder -> {
             builder.serializers(new LocalDateTimeSerializer(
-                    DateTimeFormatter.ofPattern(dateTimeFormat)));
+                    DateTimeFormatter.ofPattern(dateTimeFormat)))
+                    .timeZone("Asia/Seoul");
         };
     }
 }

@@ -5,11 +5,11 @@ import com.sparta.hhztclone.domain.member.dto.MemberResponseDto.EmailAuthRespons
 import com.sparta.hhztclone.domain.member.dto.MemberResponseDto.EmailSendResponseDto;
 import com.sparta.hhztclone.domain.member.service.EmailService;
 import com.sparta.hhztclone.domain.member.service.MemberService;
-import com.sparta.hhztclone.global.dto.ResponseDto;
 import com.sparta.hhztclone.domain.member.valid.MemberValidationGroup.EmailGroup;
 import com.sparta.hhztclone.domain.member.valid.MemberValidationGroup.NicknamePatternGroup;
 import com.sparta.hhztclone.domain.member.valid.MemberValidationGroup.NotBlankGroup;
 import com.sparta.hhztclone.domain.member.valid.MemberValidationSequence;
+import com.sparta.hhztclone.global.dto.ResponseDto;
 import com.sparta.hhztclone.global.security.UserDetailsImpl;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -79,7 +79,7 @@ public class MemberController implements MemberControllerDocs {
     }
 
     // 회원 정보 조회
-    @GetMapping("mypage")
+    @GetMapping("/mypage")
     public ResponseDto<GetMemberResponseDto> getUser(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         GetMemberResponseDto responseDto = memberService.getMember(userDetails.getUsername());
         return ResponseDto.success("회원 정보 조회 성공", responseDto);

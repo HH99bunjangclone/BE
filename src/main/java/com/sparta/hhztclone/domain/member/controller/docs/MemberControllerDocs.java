@@ -54,7 +54,6 @@ public interface MemberControllerDocs {
             @Pattern(regexp = "^[가-힣a-zA-Z0-9]{2,10}$", message = "닉네임은 특수문자를 제외한 2~10자리를 입력 해주세요.", groups = NicknamePatternGroup.class)
             String nickname);
 
-    // 회원 정보 조회
     @Operation(summary = "회원 정보 조회 API", description = "마이페이지 회원 정보 조회 요청 API")
     ResponseDto<GetMemberResponseDto> getUser(@AuthenticationPrincipal UserDetailsImpl userDetails);
 
