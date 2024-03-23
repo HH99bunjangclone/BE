@@ -40,8 +40,7 @@ public interface ItemControllerDocs {
     ResponseDto<EditItemResponseDto> editItem(
             @PathVariable Long itemId,
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestPart @Valid ItemRequestDto.EditItemRequestDto requestDto,
-            @RequestPart(value = "imgList", required = false) MultipartFile[] multipartFilesList
+            @RequestPart @Valid ItemRequestDto.EditItemRequestDto requestDto
     );
 
     @Operation(summary = "아이템 삭제 기능", description = "아이템을 삭제할 수 있는 API")
