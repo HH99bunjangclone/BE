@@ -8,6 +8,7 @@ import com.sparta.hhztclone.domain.item.dto.ItemResponseDto.GetItemResponseDto;
 import com.sparta.hhztclone.domain.item.dto.ItemResponseDto.SearchItemResponseDto;
 import com.sparta.hhztclone.domain.item.entity.Category.CategoryType;
 import com.sparta.hhztclone.domain.item.service.ItemService;
+import com.sparta.hhztclone.domain.item.valid.ItemValidationSequence;
 import com.sparta.hhztclone.global.dto.ResponseDto;
 import com.sparta.hhztclone.global.security.UserDetailsImpl;
 import jakarta.validation.Valid;
@@ -16,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/api/v1/item")
 @DynamicUpdate
 @Slf4j
+@Validated(ItemValidationSequence.class)
 public class ItemController implements ItemControllerDocs {
 
     private final ItemService itemService;
@@ -33,10 +36,13 @@ public class ItemController implements ItemControllerDocs {
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestPart @Valid ItemRequestDto.CreateItemRequestDto requestDto,
             @RequestPart(value = "imgList", required = false) MultipartFile[] multipartFilesList
-
     ) {
-        CreateItemResponseDto responseDto = itemService.createItem(userDetails.getUsername(), requestDto, multipartFilesList);
-        return ResponseDto.success("아이템 생성 기능", responseDto);
+        try {
+            CreateItemResponseDto responseDto = itemService.createItem(userDetails.getUsername(), requestDto, multipartFilesList);
+            return ResponseDto.success("아이템 생성 기능", responseDto);
+        } catch (StringIndexOutOfBoundsException e) {
+            throw new IllegalArgumentException("1장 이상의 이미지를 선택해 주세요.");
+        }
     }
 
     @GetMapping
@@ -73,11 +79,14 @@ public class ItemController implements ItemControllerDocs {
     public ResponseDto<ItemResponseDto.EditItemResponseDto> editItem(
             @PathVariable Long itemId,
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestPart @Valid ItemRequestDto.EditItemRequestDto requestDto,
-            @RequestPart(value = "imgList", required = false) MultipartFile[] multipartFilesList
+            @RequestPart @Valid ItemRequestDto.EditItemRequestDto requestDto
     ) {
-        ItemResponseDto.EditItemResponseDto responseDto = itemService.editItem(itemId, userDetails.getUsername(), requestDto, multipartFilesList);
-        return ResponseDto.success("아이템 수정 기능", responseDto);
+        try {
+            ItemResponseDto.EditItemResponseDto responseDto = itemService.editItem(itemId, userDetails.getUsername(), requestDto);
+            return ResponseDto.success("아이템 수정 기능", responseDto);
+        } catch (StringIndexOutOfBoundsException e) {
+            throw new IllegalArgumentException("1장 이상의 이미지를 선택해 주세요.");
+        }
     }
 
     @DeleteMapping("/{itemId}")

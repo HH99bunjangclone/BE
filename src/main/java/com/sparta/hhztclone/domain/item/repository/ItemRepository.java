@@ -8,5 +8,7 @@ import java.util.List;
 
 public interface ItemRepository extends JpaRepository<Item,Long>, ItemRepositoryCustom {
 
-    List<Item> findByCategory(CategoryType category);
+    List<Item> findByCategoryOrderByCreatedAtDesc(CategoryType category);
+
+    List<Item> findAllByOrderByCreatedAtDesc();
 }

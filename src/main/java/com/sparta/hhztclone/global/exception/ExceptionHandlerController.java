@@ -27,21 +27,25 @@ public class ExceptionHandlerController {
             data.put(fieldError.getField(), fieldError.getDefaultMessage());
         }
 
-        return ResponseEntity.badRequest().body(ResponseDto.fail("유효성 검사 실패", data));
+        return ResponseEntity.badRequest().body(ResponseDto.fail("필수값을 모두 입력해 주세요."));
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ResponseDto<List<String>>> checkFieldRequest(ConstraintViolationException e) {
         List<String> data = e.getConstraintViolations().stream().map(ConstraintViolation::getMessage).toList();
-
-        return ResponseEntity.badRequest().body(ResponseDto.fail("유효성 검사 실패", data));
+        return ResponseEntity.badRequest().body(ResponseDto.fail(data.get(0)));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ResponseDto> clientBadRequest(IllegalArgumentException e) {
         return ResponseEntity.badRequest().body(ResponseDto.fail(e.getMessage()));
     }
+
+//    @ExceptionHandler(StringIndexOutOfBoundsException.class)
+//    public ResponseEntity<ResponseDto> imageException(StringIndexOutOfBoundsException e) {
+//        return ResponseEntity.badRequest().body(ResponseDto.fail(e.getMessage()));
+//    }
 
     @ExceptionHandler(RestApiException.class)
     public ResponseEntity<ResponseDto> restApiBadRequest(RestApiException e) {
