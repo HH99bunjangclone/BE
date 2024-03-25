@@ -1,1 +1,58 @@
-# BE
+# [항해99 클론코딩 3조] 🔥 번개장터 - BE
+🔴 서비스 소개
+-------
+전국에 있는 내 취향의 브랜드 상품. 번개장터에서 더 쉽고 안전하게 거래하세요 !
+
+🟠 팀원 소개
+-------
+- BE
+  - 김대용(https://github.com/cheesecup)
+  - 이주호(https://github.com/lsc713)
+  - 김엄지(https://github.com/kimeomji333)
+- FE
+  - 이예진(https://github.com/yeeendy)
+  - 황인영(https://github.com/inyoungfriend)
+
+🟡 Tech Stack
+-------
+- JDK 17
+- Spring Boot 3.2.3
+- Spring Boot JPA
+- Spring Boot Security
+- Spring Boot Validation
+- RDS, EC2
+- Redis
+- MySQL
+- Swagger UI
+- JWT
+- Qeurydsl
+
+🟢 구현 기능
+--------
+- 회원가입
+  - 이메일 인증하기
+  - 이메일 중복체크
+  - 닉네임 중복체크
+- 로그인/로그아웃
+- 게시글 등록
+  - 게시글 CRUD
+  - 이미지 여러개 업로드
+  - 썸네일
+- 메인페이지
+  - 게시글 검색
+  - 카테고리별 정렬
+ 
+    
+🔵 USE CASE DIAGRAM
+-------
+![Blank diagram (1)](https://github.com/HH99bunjangclone/BE/assets/148833676/f2e5554f-5499-4bae-9ccf-8c068d0c1ce0)
+
+🟣  ERD
+-------
+![수정한ERD](https://github.com/HH99bunjangclone/BE/assets/148833676/37b489e1-b7c7-4fed-9ef2-8d7b5fd29e99)
+
+
+⚫ API 명세서
+-------
+Url : [http://www.baekwon.site/swagger-ui/index.html](http://www.baekwon.site/swagger-ui/index.html)
+![image](https://github.com/HH99bunjangclone/BE/assets/148833676/f031fd6a-58f4-4b85-83d5-79e7c93897eb)

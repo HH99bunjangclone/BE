@@ -11,6 +11,8 @@ import lombok.Setter;
 
 import static com.sparta.hhztclone.domain.item.valid.ItemValidationGroup.*;
 
+import java.util.List;
+
 public class ItemRequestDto {
 
 
