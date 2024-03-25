@@ -49,8 +49,10 @@
 
 🟣  ERD
 -------
-![HHZT (1)](https://github.com/HH99bunjangclone/BE/assets/148833676/ca2191da-e44f-42c8-bdda-bb01f20695d8)
+![수정한ERD](https://github.com/HH99bunjangclone/BE/assets/148833676/37b489e1-b7c7-4fed-9ef2-8d7b5fd29e99)
+
 
 ⚫ API 명세서
 -------
-Url : 
+Url : [http://www.baekwon.site/swagger-ui/index.html](http://www.baekwon.site/swagger-ui/index.html)
+![image](https://github.com/HH99bunjangclone/BE/assets/148833676/f031fd6a-58f4-4b85-83d5-79e7c93897eb)
